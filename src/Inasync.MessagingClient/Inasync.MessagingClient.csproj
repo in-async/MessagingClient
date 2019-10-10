@@ -1,0 +1,14 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>netstandard2.0;netstandard1.0;net45</TargetFrameworks>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <Authors>inasync</Authors>
+    <Description>Inasync.MessagingClient is a .NET helper library that provides a simple messaging API.</Description>
+    <PackageProjectUrl>https://github.com/in-async/MessagingClient</PackageProjectUrl>
+    <PackageLicenseUrl>https://github.com/in-async/MessagingClient/blob/master/LICENSE</PackageLicenseUrl>
+    <PackageTags>library messaging message</PackageTags>
+    <Version>0.1.0</Version>
+  </PropertyGroup>
+
+</Project>
