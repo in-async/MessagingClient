@@ -28,6 +28,22 @@ namespace Inasync.MessagingClient {
     }
 
     /// <summary>
+    /// <see cref="IInputMessageChannel{TMessage}"/> の拡張メソッドを定義するクラス。
+    /// </summary>
+    public static class InputMessageChannelExtensions {
+
+        /// <summary>
+        /// メッセージ チャネルにメッセージを送信します。
+        /// </summary>
+        /// <typeparam name="TMessage">メッセージを表す非 <c>null</c> 型。</typeparam>
+        /// <param name="messageChannel">対象のメッセージ チャネル。</param>
+        /// <param name="message">チャネルへ送信するメッセージ。</param>
+        /// <exception cref="MessagingException">メッセージ チャネルのエラーにより、メッセージの送信に失敗した。</exception>
+        /// <exception cref="OperationCanceledException">キャンセル要求に従い、操作が中止された。</exception>
+        public static Task PostAsync<TMessage>(this IInputMessageChannel<TMessage> messageChannel, TMessage message) => messageChannel.PostAsync(message, cancellationToken: default);
+    }
+
+    /// <summary>
     /// メッセージ チャネルの出力を表すインターフェース。
     /// </summary>
     /// <typeparam name="TMessage">メッセージを表す非 <c>null</c> 型。</typeparam>

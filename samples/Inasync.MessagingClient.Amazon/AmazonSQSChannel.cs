@@ -28,7 +28,7 @@ namespace Inasync.MessagingClient.Amazon {
         /// <param name="logger">処理の途中経過を通知するロガー。主に <see cref="SubscribeAsync(MessageConsumer{string}, CancellationToken)"/> 用。</param>
         /// <exception cref="ArgumentNullException"><paramref name="client"/> or <paramref name="queueUrl"/> is <c>null</c>.</exception>
         /// <exception cref="ArgumentOutOfRangeException">The <paramref name="pollingIdleTime"/> millisecond is less than -1 or greater than <see cref="int.MaxValue"/>.</exception>
-        public AmazonSQSChannel(IAmazonSQS client, string queueUrl, TimeSpan pollingIdleTime, Action<string> logger) {
+        public AmazonSQSChannel(IAmazonSQS client, string queueUrl, TimeSpan pollingIdleTime = default, Action<string> logger = null) {
             _client = client ?? throw new ArgumentNullException(nameof(client));
             _queueUrl = queueUrl ?? throw new ArgumentNullException(nameof(queueUrl));
             if (pollingIdleTime.TotalMilliseconds < -1 || int.MaxValue < pollingIdleTime.TotalMilliseconds) { throw new ArgumentOutOfRangeException(nameof(pollingIdleTime), pollingIdleTime, null); }

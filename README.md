@@ -12,6 +12,18 @@
 
 ## Usage
 ```cs
+var messageChannel = new FakeMessageChannel<string>();
+
+await messageChannel.PostAsync(message: "foo bar");
+
+try {
+    var cts = new CancellationTokenSource(millisecondsDelay: 100);
+    await messageChannel.SubscribeAsync((message, cancellationToken) => {
+        Console.WriteLine(message);  // "foo bar"
+        return Task.FromResult(true);
+    }, cts.Token);
+}
+catch (OperationCanceledException) { }
 ```
 
 
