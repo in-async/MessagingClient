@@ -36,6 +36,11 @@ namespace Inasync.MessagingClient {
         }
 
 #if NET45
+        /// <summary>
+        /// シリアル化したデータを使用して、<see cref="MessagingException"/> クラスの新しいインスタンスを初期化します。
+        /// </summary>
+        /// <param name="info">スローされている例外に関するシリアル化済みオブジェクト データを保持している <see cref="SerializationInfo"/>。</param>
+        /// <param name="context">転送元または転送先についてのコンテキスト情報を含む <see cref="StreamingContext"/>。</param>
         protected MessagingException(SerializationInfo info, StreamingContext context) : base(info, context: context) {
         }
 #endif

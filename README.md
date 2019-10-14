@@ -18,9 +18,16 @@ await messageChannel.PostAsync(message: "foo bar");
 
 try {
     var cts = new CancellationTokenSource(millisecondsDelay: 100);
-    await messageChannel.SubscribeAsync((message, cancellationToken) => {
-        Console.WriteLine(message);  // "foo bar"
-        return Task.FromResult(true);
+    await messageChannel.SubscribeAsync((messages, results, cancellationToken) => {
+        Debug.Assert(messages != null);
+        Debug.Assert(results != null);
+        Debug.Assert(messages.Count == results.Length);
+
+        for (var i = 0; i < results.Length; i++) {
+            Console.WriteLine(messages[i]);  // "foo bar"
+            results[i] = true;
+        }
+        return Task.CompletedTask;
     }, cts.Token);
 }
 catch (OperationCanceledException) { }

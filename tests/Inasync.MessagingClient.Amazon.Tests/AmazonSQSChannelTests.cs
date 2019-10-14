@@ -99,7 +99,8 @@ namespace Inasync.MessagingClient.Amazon.Tests {
                         }
                         client.ReceiveCount.Is(receiveCount, desc);
 
-                        consumer.ActualParamList.DeepIs(messages.Select(x => (x.Body, cts.Token)), desc);
+                        consumer.ActualMessages.Is(messages.Select(x => x.Body), desc);
+                        consumer.ActualCancellationTokens.Is(new HashSet<CancellationToken>(new[] { cts.Token }), desc);
                     }, expectedExceptionType);
             };
 
@@ -152,7 +153,14 @@ namespace Inasync.MessagingClient.Amazon.Tests {
                         client.MessageCount.Is(0, desc);
                         client.ReceiveCount.Is(receiveCount, desc);
 
-                        consumer.ActualParamList.DeepIs(messages.Select(x => (x.Body, cts.Token)), desc);
+                        if (messageCount == 0) {
+                            consumer.ActualMessages.Is(new string[0], desc);
+                            consumer.ActualCancellationTokens.Is(new HashSet<CancellationToken>(), desc);
+                        }
+                        else {
+                            consumer.ActualMessages.Is(messages.Select(x => x.Body), desc);
+                            consumer.ActualCancellationTokens.Is(new HashSet<CancellationToken>(new[] { cts.Token }), desc);
+                        }
                     }, expectedExceptionType);
             };
 
@@ -174,15 +182,20 @@ namespace Inasync.MessagingClient.Amazon.Tests {
         }).ToArray();
 
         private sealed class SpyMessageConsumer {
-            private readonly Task<bool> _result;
+            private readonly bool _result;
 
-            public SpyMessageConsumer(bool result) => _result = Task.FromResult(result);
+            public SpyMessageConsumer(bool result) => _result = result;
 
-            public List<(string message, CancellationToken cancellationToken)> ActualParamList { get; } = new List<(string message, CancellationToken cancellationToken)>();
+            //public List<(IReadOnlyList<string> messages, CancellationToken cancellationToken)> ActualParamList { get; } = new List<(IReadOnlyList<string> messages, CancellationToken cancellationToken)>();
 
-            public MessageConsumer<string> Delegate => (message, cancellationToken) => {
-                ActualParamList.Add((message, cancellationToken));
-                return _result;
+            public List<string> ActualMessages { get; } = new List<string>();
+            public HashSet<CancellationToken> ActualCancellationTokens { get; } = new HashSet<CancellationToken>();
+
+            public MessageChunkConsumerFunc<string> Delegate => (messages, results, cancellationToken) => {
+                ActualMessages.AddRange(messages);
+                ActualCancellationTokens.Add(cancellationToken);
+                Array.Fill(results, _result);
+                return Task.CompletedTask;
             };
         }
 

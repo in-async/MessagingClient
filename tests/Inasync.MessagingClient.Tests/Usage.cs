@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -17,9 +18,16 @@ namespace Inasync.MessagingClient.Tests {
 
             try {
                 var cts = new CancellationTokenSource(millisecondsDelay: 100);
-                await messageChannel.SubscribeAsync((message, cancellationToken) => {
-                    Console.WriteLine(message);  // "foo bar"
-                    return Task.FromResult(true);
+                await messageChannel.SubscribeAsync((messages, results, cancellationToken) => {
+                    Debug.Assert(messages != null);
+                    Debug.Assert(results != null);
+                    Debug.Assert(messages.Count == results.Length);
+
+                    for (var i = 0; i < results.Length; i++) {
+                        Console.WriteLine(messages[i]);  // "foo bar"
+                        results[i] = true;
+                    }
+                    return Task.CompletedTask;
                 }, cts.Token);
             }
             catch (OperationCanceledException) { }
@@ -37,16 +45,20 @@ namespace Inasync.MessagingClient.Tests {
                 return Task.CompletedTask;
             }
 
-            public Task SubscribeAsync(MessageConsumer<TMessage> consumer, CancellationToken cancellationToken) {
+            public Task SubscribeAsync(MessageChunkConsumerFunc<TMessage> consumer, CancellationToken cancellationToken) {
                 if (consumer == null) { throw new ArgumentNullException(nameof(consumer)); }
 
                 return Task.Run(async () => {
                     while (true) {
                         cancellationToken.ThrowIfCancellationRequested();
 
+                        var messages = new TMessage[1];
+                        var results = new bool[1];
                         while (_queue.TryDequeue(out var message)) {
-                            await consumer(message, cancellationToken).ConfigureAwait(false);
+                            messages[0] = message;
+                            await consumer(messages, results, cancellationToken).ConfigureAwait(false);
                         }
+
                         await Task.Delay(100, cancellationToken);
                     }
                 });
